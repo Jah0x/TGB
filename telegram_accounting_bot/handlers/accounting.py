@@ -36,3 +36,4 @@ async def accounting_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
             ADMIN_CHAT_ID, f"Ошибка обработки сообщения '{text}': {exc}"
         )
         logging.exception("Parsing error")
+
