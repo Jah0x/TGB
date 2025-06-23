@@ -1,14 +1,24 @@
 import logging
+from pathlib import Path
 
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
-from .config import TELEGRAM_TOKEN
+from .config import TELEGRAM_TOKEN, LOG_TO_FILE, LOG_FILE
 from .database import Database
 from .handlers.accounting import accounting_message
 from .handlers.admin import addstock_cmd, setprice_cmd, getstock_cmd
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+def configure_logging():
+    handlers = [logging.StreamHandler()]
+    if LOG_TO_FILE:
+        Path(LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
+        handlers.append(logging.FileHandler(LOG_FILE))
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=handlers,
+    )
 
 
 db = Database()
@@ -35,6 +45,7 @@ def build_application():
 
 
 def main():
+    configure_logging()
     app = build_application()
     app.run_polling()
 

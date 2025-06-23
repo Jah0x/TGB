@@ -12,3 +12,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7873432803:AAGs3Zlk_1sZEFHZ-qIOyvv
 # Используется только во время тестирования.
 SEND_EACH_SALE = bool(int(os.getenv("SEND_EACH_SALE", "0")))
 
+# Путь до файла логов и флаг их включения
+LOG_FILE = os.getenv("LOG_FILE", "logs/bot.log")
+LOG_TO_FILE = bool(int(os.getenv("LOG_TO_FILE", "1")))
+
