@@ -34,3 +34,10 @@ python -m telegram_accounting_bot.main > bot.log 2>&1
 - В `config.py` появились константы `ACCOUNTING_CHAT_ID` и `ACCOUNTING_TOPIC_ID` c
   дефолтными значениями для темы "БУХГАЛТЕРИЯ".
 
+## 2024-05-27
+- Улучшено логирование в `accounting.py`: добавлены сообщения DEBUG
+  о полученных данных и успешном разборе сообщений.
+- В `config.py` введена переменная `SEND_EACH_SALE` для режима тестирования.
+- Новый модуль `utils/notifier.py` отправляет администратору сообщение о каждой
+  продаже, если включён `SEND_EACH_SALE`.
+

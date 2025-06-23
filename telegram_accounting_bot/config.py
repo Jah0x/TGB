@@ -8,3 +8,7 @@ ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "6480599695"))               # ID
 DB_PATH = os.getenv("DB_PATH", "accounting.db")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7873432803:AAGs3Zlk_1sZEFHZ-qIOyvvAHoz7Wncyeiw")
 
+# Включает отправку администратору сведений о каждой сохранённой продаже.
+# Используется только во время тестирования.
+SEND_EACH_SALE = bool(int(os.getenv("SEND_EACH_SALE", "0")))
+
