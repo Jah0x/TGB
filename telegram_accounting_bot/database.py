@@ -88,3 +88,4 @@ class Database:
                 (product_name.strip(),),
             )
             return await cur.fetchone()
+

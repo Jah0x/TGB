@@ -56,3 +56,4 @@ async def getstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Товар не найден.")
     except Exception as exc:
         await update.message.reply_text(f"Ошибка: {exc}")
+

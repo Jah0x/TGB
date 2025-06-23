@@ -1,0 +1,2 @@
+"""Telegram Accounting Bot package"""
+
