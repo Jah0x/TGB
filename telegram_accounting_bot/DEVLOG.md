@@ -29,3 +29,8 @@ python -m telegram_accounting_bot.main > bot.log 2>&1
 `logs/` и периодически очищать её, либо настроить `RotatingFileHandler` из
 модуля `logging`.
 
+## 2024-05-26
+- Добавлена фильтрация сообщений по ID темы и чата в `accounting.py`.
+- В `config.py` появились константы `ACCOUNTING_CHAT_ID` и `ACCOUNTING_TOPIC_ID` c
+  дефолтными значениями для темы "БУХГАЛТЕРИЯ".
+

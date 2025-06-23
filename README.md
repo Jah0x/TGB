@@ -18,6 +18,7 @@ AirPods - 12000 - карта х3              # 3 шт.
 ### Переменные окружения
 - `TELEGRAM_TOKEN` — токен бота
 - `ACCOUNTING_CHAT_ID` — ID чата/темы "БУХГАЛТЕРИЯ"
+- `ACCOUNTING_TOPIC_ID` — ID форума (thread) для учёта продаж
 - `ADMIN_CHAT_ID` — ID администратора
 
 ### Запуск
