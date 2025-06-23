@@ -5,7 +5,14 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from .config import TELEGRAM_TOKEN
 from .database import Database
 from .handlers.accounting import accounting_message
-from .handlers.admin import addstock_cmd, setprice_cmd, getstock_cmd
+from .handlers.admin import (
+    addstock_cmd,
+    setprice_cmd,
+    getstock_cmd,
+    send_cmd,
+    history_cmd,
+    menu_cmd,
+)
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -30,6 +37,9 @@ def build_application():
     app.add_handler(CommandHandler("addstock", addstock_cmd))
     app.add_handler(CommandHandler("setprice", setprice_cmd))
     app.add_handler(CommandHandler("getstock", getstock_cmd))
+    app.add_handler(CommandHandler("send", send_cmd))
+    app.add_handler(CommandHandler("history", history_cmd))
+    app.add_handler(CommandHandler("menu", menu_cmd))
 
     return app
 

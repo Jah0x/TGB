@@ -1,7 +1,11 @@
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from ..config import ADMIN_CHAT_ID
+from ..config import (
+    ADMIN_CHAT_ID,
+    ACCOUNTING_CHAT_ID,
+    ACCOUNTING_TOPIC_ID,
+)
 from ..database import Database
 
 
@@ -56,4 +60,39 @@ async def getstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Товар не найден.")
     except Exception as exc:
         await update.message.reply_text(f"Ошибка: {exc}")
+
+
+async def send_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_admin(update):
+        return
+    await context.bot.send_message(
+        ACCOUNTING_CHAT_ID,
+        "привет",
+        message_thread_id=ACCOUNTING_TOPIC_ID,
+    )
+    await update.message.reply_text("Привет отправлен.")
+
+
+async def history_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_admin(update):
+        return
+    rows = await db.get_recent_sales(10)
+    if rows:
+        lines = [
+            f"{name} - {price:.2f} - {payment} ({created_at[:16]})"
+            for name, price, payment, created_at in rows
+        ]
+        text = "\n".join(lines)
+    else:
+        text = "Продажи отсутствуют."
+    await update.message.reply_text(text)
+
+
+MENU_MARKUP = ReplyKeyboardMarkup([["/send", "/history"]], resize_keyboard=True)
+
+
+async def menu_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_admin(update):
+        return
+    await update.message.reply_text("Выберите команду:", reply_markup=MENU_MARKUP)
 
