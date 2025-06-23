@@ -89,3 +89,18 @@ class Database:
             )
             return await cur.fetchone()
 
+    async def get_recent_sales(self, limit: int = 5):
+        """Return last *limit* sales with product name and details."""
+        async with aiosqlite.connect(self.path) as db:
+            cur = await db.execute(
+                """
+                SELECT prod.name, s.sale_price, s.payment_type, s.created_at
+                FROM sales s
+                JOIN products prod ON prod.id = s.product_id
+                ORDER BY s.id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            )
+            return await cur.fetchall()
+
