@@ -2,7 +2,11 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from ..config import ACCOUNTING_CHAT_ID, ADMIN_CHAT_ID
+from ..config import (
+    ACCOUNTING_CHAT_ID,
+    ACCOUNTING_TOPIC_ID,
+    ADMIN_CHAT_ID,
+)
 from ..database import Database
 from ..utils.parser import parse_message
 
@@ -13,10 +17,16 @@ db = Database()
 async def accounting_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle every text message in the accounting chat."""
 
-    if update.effective_chat.id != ACCOUNTING_CHAT_ID:
+    message = update.effective_message
+
+    # Обрабатываем только сообщения из нужной темы в нужном чате
+    if (
+        update.effective_chat.id != ACCOUNTING_CHAT_ID
+        or message.message_thread_id != ACCOUNTING_TOPIC_ID
+    ):
         return
 
-    text = update.effective_message.text
+    text = message.text
 
     try:
         product, price, payment, qty = parse_message(text)
