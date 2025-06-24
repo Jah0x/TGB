@@ -76,7 +76,11 @@ async def send_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def history_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_admin(update):
         return
-    rows = await db.get_recent_sales(10)
+    if context.args:
+        date = context.args[0]
+        rows = await db.get_sales_by_date(date)
+    else:
+        rows = await db.get_recent_sales(10)
     if rows:
         lines = [
             f"{name} - {price:.2f} - {payment} ({created_at[:16]})"
