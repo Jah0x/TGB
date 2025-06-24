@@ -17,29 +17,43 @@ def _is_admin(update: Update) -> bool:
 
 
 async def addstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Increase stock amount for a product."""
     if not _is_admin(update):
         return
     try:
-        product = context.args[0]
-        qty = int(context.args[1])
+        if len(context.args) < 2:
+            raise ValueError
+        *name_parts, qty_str = context.args
+        product = " ".join(name_parts)
+        qty = int(qty_str)
         await db.add_stock(product, qty)
-        await update.message.reply_text(f"Добавлено {qty} ед. товара '{product}'.")
+        await update.message.reply_text(
+            f"Добавлено {qty} ед. товара '{product}'."
+        )
     except (IndexError, ValueError):
-        await update.message.reply_text("Использование: /addstock <товар> <кол-во>")
+        await update.message.reply_text(
+            "Использование: /addstock <товар> <кол-во>"
+        )
 
 
 async def setprice_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Set purchase price for a product."""
     if not _is_admin(update):
         return
     try:
-        product = context.args[0]
-        price = float(context.args[1].replace(",", "."))
+        if len(context.args) < 2:
+            raise ValueError
+        *name_parts, price_str = context.args
+        product = " ".join(name_parts)
+        price = float(price_str.replace(",", "."))
         await db.set_purchase_price(product, price)
         await update.message.reply_text(
             f"Закупочная цена для '{product}' установлена: {price:.2f}"
         )
     except (IndexError, ValueError):
-        await update.message.reply_text("Использование: /setprice <товар> <цена>")
+        await update.message.reply_text(
+            "Использование: /setprice <товар> <цена>"
+        )
     except Exception as exc:
         await update.message.reply_text(f"Ошибка изменения цены: {exc}")
 
