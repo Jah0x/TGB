@@ -92,7 +92,14 @@ async def history_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text)
 
 
-MENU_MARKUP = ReplyKeyboardMarkup([["/send", "/history"]], resize_keyboard=True)
+MENU_MARKUP = ReplyKeyboardMarkup(
+    [
+        ["/addstock", "/setprice"],
+        ["/getstock", "/send"],
+        ["/history", "/menu"],
+    ],
+    resize_keyboard=True,
+)
 
 
 async def menu_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
