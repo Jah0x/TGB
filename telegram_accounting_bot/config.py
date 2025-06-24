@@ -10,3 +10,6 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7873432803:AAGs3Zlk_1sZEFHZ-qIOyvv
 # Используется только во время тестирования.
 
 SEND_EACH_SALE = bool(int(os.getenv("SEND_EACH_SALE", "0")))
+
+# Допустимые типы оплаты
+PAYMENT_TYPES = ["нал", "перевод", "терминал"]
