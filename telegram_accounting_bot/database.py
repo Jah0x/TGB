@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS sales (
     payment_type TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS daily_reports (
+    date TEXT PRIMARY KEY,
+    cash_total REAL NOT NULL,
+    transfer_total REAL NOT NULL,
+    terminal_total REAL NOT NULL
+);
 """
 
 class Database:
@@ -118,4 +124,51 @@ class Database:
                 (date,),
             )
             return await cur.fetchall()
+
+    async def get_totals_for_date(self, date: str):
+        """Return totals per payment type for the given date."""
+        totals = {"нал": 0.0, "перевод": 0.0, "терминал": 0.0}
+        async with aiosqlite.connect(self.path) as db:
+            cur = await db.execute(
+                """
+                SELECT payment_type, SUM(sale_price)
+                FROM sales
+                WHERE date(created_at) = date(?)
+                GROUP BY payment_type
+                """,
+                (date,),
+            )
+            for pay_type, total in await cur.fetchall():
+                if pay_type in totals:
+                    totals[pay_type] = total or 0.0
+        return totals
+
+    async def save_daily_report(self, date: str, totals: dict):
+        """Insert or update aggregated totals for the date."""
+        async with aiosqlite.connect(self.path) as db:
+            await db.execute(
+                """
+                INSERT INTO daily_reports(date, cash_total, transfer_total, terminal_total)
+                VALUES(?,?,?,?)
+                ON CONFLICT(date) DO UPDATE SET
+                    cash_total=excluded.cash_total,
+                    transfer_total=excluded.transfer_total,
+                    terminal_total=excluded.terminal_total
+                """,
+                (
+                    date,
+                    totals.get("нал", 0.0),
+                    totals.get("перевод", 0.0),
+                    totals.get("терминал", 0.0),
+                ),
+            )
+            await db.commit()
+
+    async def get_daily_report(self, date: str):
+        async with aiosqlite.connect(self.path) as db:
+            cur = await db.execute(
+                "SELECT cash_total, transfer_total, terminal_total FROM daily_reports WHERE date = ?",
+                (date,),
+            )
+            return await cur.fetchone()
 

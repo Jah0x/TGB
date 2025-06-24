@@ -1,6 +1,8 @@
 import re
 from typing import Tuple
 
+from ..config import PAYMENT_TYPES
+
 
 def parse_message(text: str) -> Tuple[str, float, str, int]:
     """Parse 'Product - price - payment_type [xN]' messages."""
@@ -24,4 +26,10 @@ def parse_message(text: str) -> Tuple[str, float, str, int]:
     if qty <= 0:
         raise ValueError("Количество должно быть > 0")
 
-    return product, price, payment_type.lower(), qty
+    payment_type = payment_type.lower()
+    if payment_type not in PAYMENT_TYPES:
+        raise ValueError(
+            "Тип оплаты должен быть: " + ", ".join(PAYMENT_TYPES)
+        )
+
+    return product, price, payment_type, qty

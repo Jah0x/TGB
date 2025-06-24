@@ -1,7 +1,8 @@
 import logging
 
 from telegram import BotCommand, BotCommandScopeChat
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from datetime import datetime, time
 
 from .config import TELEGRAM_TOKEN, ADMIN_CHAT_ID
 from .database import Database
@@ -15,11 +16,27 @@ from .handlers.admin import (
     menu_cmd,
 )
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 
 
 db = Database()
+
+
+async def send_daily_report(context: ContextTypes.DEFAULT_TYPE):
+    """Generate sales summary and send to admin."""
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    totals = await db.get_totals_for_date(date_str)
+    await db.save_daily_report(date_str, totals)
+    msg = (
+        f"Отчёт за {date_str}\n"
+        f"нал: {totals['нал']:.2f}\n"
+        f"перевод: {totals['перевод']:.2f}\n"
+        f"терминал: {totals['терминал']:.2f}"
+    )
+    await context.bot.send_message(ADMIN_CHAT_ID, msg)
 
 
 async def _init_db(app):
@@ -56,6 +73,8 @@ def build_application():
     app.add_handler(CommandHandler("send", send_cmd))
     app.add_handler(CommandHandler("history", history_cmd))
     app.add_handler(CommandHandler("menu", menu_cmd))
+
+    app.job_queue.run_daily(send_daily_report, time(hour=23, minute=0))
 
     return app
 
