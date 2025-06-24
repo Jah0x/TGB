@@ -1,3 +1,4 @@
+import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
@@ -7,6 +8,9 @@ from ..config import (
     ACCOUNTING_TOPIC_ID,
 )
 from ..database import Database
+
+
+logger = logging.getLogger(__name__)
 
 
 db = Database()
@@ -26,10 +30,13 @@ async def addstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         *name_parts, qty_str = context.args
         product = " ".join(name_parts)
         qty = int(qty_str)
+        if qty <= 0:
+            raise ValueError
         await db.add_stock(product, qty)
         await update.message.reply_text(
             f"Добавлено {qty} ед. товара '{product}'."
         )
+        logger.info("addstock: %s x%d", product, qty)
     except (IndexError, ValueError):
         await update.message.reply_text(
             "Использование: /addstock <товар> <кол-во>"
@@ -46,22 +53,29 @@ async def setprice_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         *name_parts, price_str = context.args
         product = " ".join(name_parts)
         price = float(price_str.replace(",", "."))
+        if price <= 0:
+            raise ValueError
         await db.set_purchase_price(product, price)
         await update.message.reply_text(
             f"Закупочная цена для '{product}' установлена: {price:.2f}"
         )
+        logger.info("setprice: %s %.2f", product, price)
     except (IndexError, ValueError):
         await update.message.reply_text(
             "Использование: /setprice <товар> <цена>"
         )
+        logger.warning("setprice: invalid arguments")
     except Exception as exc:
         await update.message.reply_text(f"Ошибка изменения цены: {exc}")
+        logger.exception("setprice failed")
 
 
 async def getstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_admin(update):
         return
     try:
+        if not context.args:
+            raise ValueError
         product = " ".join(context.args)
         data = await db.get_stock(product)
         if data:
@@ -74,8 +88,13 @@ async def getstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         else:
             await update.message.reply_text("Товар не найден.")
+        logger.info("getstock: %s -> %s", product, data)
+    except ValueError:
+        await update.message.reply_text("Использование: /getstock <товар>")
+        logger.warning("getstock: no product name")
     except Exception as exc:
         await update.message.reply_text(f"Ошибка: {exc}")
+        logger.exception("getstock failed")
 
 
 async def send_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -87,6 +106,7 @@ async def send_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message_thread_id=ACCOUNTING_TOPIC_ID,
     )
     await update.message.reply_text("Привет отправлен.")
+    logger.info("send test message")
 
 
 async def history_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -106,6 +126,7 @@ async def history_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         text = "Продажи отсутствуют."
     await update.message.reply_text(text)
+    logger.info("history requested: %s", context.args[0] if context.args else "recent")
 
 
 MENU_MARKUP = ReplyKeyboardMarkup(
@@ -122,4 +143,5 @@ async def menu_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_admin(update):
         return
     await update.message.reply_text("Выберите команду:", reply_markup=MENU_MARKUP)
+    logger.info("menu shown")
 
