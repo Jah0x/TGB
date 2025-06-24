@@ -9,3 +9,4 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7873432803:AAGs3Zlk_1sZEFHZ-qIOyvv
 # Включает отправку администратору сведений о каждой сохранённой продаже.
 # Используется только во время тестирования.
 
+/opt/tgbot/telegram_accounting_bot/config.py
