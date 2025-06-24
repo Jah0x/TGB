@@ -104,3 +104,18 @@ class Database:
             )
             return await cur.fetchall()
 
+    async def get_sales_by_date(self, date: str):
+        """Return all sales for the given YYYY-MM-DD date."""
+        async with aiosqlite.connect(self.path) as db:
+            cur = await db.execute(
+                """
+                SELECT prod.name, s.sale_price, s.payment_type, s.created_at
+                FROM sales s
+                JOIN products prod ON prod.id = s.product_id
+                WHERE date(s.created_at) = date(?)
+                ORDER BY s.created_at
+                """,
+                (date,),
+            )
+            return await cur.fetchall()
+
