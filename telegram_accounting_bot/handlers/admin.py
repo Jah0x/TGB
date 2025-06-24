@@ -40,6 +40,8 @@ async def setprice_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     except (IndexError, ValueError):
         await update.message.reply_text("Использование: /setprice <товар> <цена>")
+    except Exception as exc:
+        await update.message.reply_text(f"Ошибка изменения цены: {exc}")
 
 
 async def getstock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):

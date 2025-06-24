@@ -1,8 +1,9 @@
 import logging
 
+from telegram import BotCommand, BotCommandScopeChat
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
-from .config import TELEGRAM_TOKEN
+from .config import TELEGRAM_TOKEN, ADMIN_CHAT_ID
 from .database import Database
 from .handlers.accounting import accounting_message
 from .handlers.admin import (
@@ -25,11 +26,26 @@ async def _init_db(app):
     await db.init()
 
 
+async def _set_admin_commands(app):
+    commands = [
+        BotCommand("addstock", "добавить товар на склад"),
+        BotCommand("setprice", "установить закупочную цену"),
+        BotCommand("getstock", "показать остаток"),
+        BotCommand("send", "тестовое сообщение"),
+        BotCommand("history", "история продаж"),
+        BotCommand("menu", "клавиатура команд"),
+    ]
+    await app.bot.set_my_commands(
+        commands, scope=BotCommandScopeChat(ADMIN_CHAT_ID)
+    )
+
+
 def build_application():
     app = (
         ApplicationBuilder()
         .token(TELEGRAM_TOKEN)
         .post_init(_init_db)
+        .post_init(_set_admin_commands)
         .build()
     )
 

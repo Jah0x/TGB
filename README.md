@@ -36,6 +36,7 @@ python -m telegram_accounting_bot.main
 * `/history` — показать 10 последних продаж;
 * `/history YYYY-MM-DD` — показать продажи за указанную дату;
 * `/menu` — показать клавиатуру со всеми командами.
+Команды также доступны в боковом меню Telegram благодаря `set_my_commands`.
 
 ### Дополнительная документация
 Файл `DEVLOG.md` теперь находится в каталоге `telegram_accounting_bot/`. В нём
